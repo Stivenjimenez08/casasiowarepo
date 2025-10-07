@@ -23,7 +23,7 @@ def _soft_key(s: str) -> str:
 @st.cache_resource
 def load_artifact(path="modelo_svr.joblib"):
     art = joblib.load(path)
-    pipe = art["pipeline_trained"]              # TTR(preprocess + SVR)
+    pipe = art["pipeline_trained"]              # TTR(preprocess + SVR) u otro pipeline
     req_cols = art["input_feature_names"]       # columnas que espera el modelo
     return art, pipe, req_cols
 
@@ -107,9 +107,12 @@ if df_new is not None:
         # Predecir (TTR devuelve ya en escala original)
         yhat = pipe.predict(X)
 
-        # Salida: SOLO features del modelo + predicción
+        # ====== OPCIÓN 1: redondeo a pesos (sin decimales) ======
+        yhat_0 = np.round(yhat, 0).astype(int)
+
+        # Salida: SOLO features del modelo + predicción redondeada
         out = X.copy()
-        out["SalePrice_pred"] = yhat
+        out["SalePrice_pred"] = yhat_0
 
         st.success("¡Predicción completada!")
         st.subheader("4) Resultados (muestra)")
